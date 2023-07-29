@@ -143,9 +143,13 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
-        name: req.user.name,
-        amount: totalOrderPrice * 100,
-        currency: 'egp',
+        price_data: {
+          currency: 'egp',
+          unit_amount: totalOrderPrice * 100,
+          product_data: {
+            name: req.user.name,
+          },
+        },
         quantity: 1,
       },
     ],
@@ -154,7 +158,7 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get('host')}/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
-    metadata: req.body.shippingAddress,
+    metadata: { shipping_address: req.body.shippingAddress },
   });
 
   // 4) send session to response
@@ -198,24 +202,24 @@ const createCardOrder = async (session) => {
 // @desc    This webhook will run when stripe payment success paid
 // @route   POST /webhook-checkout
 // @access  Protected/User
-// exports.webhookCheckout = asyncHandler(async (req, res, next) => {
-//   const sig = req.headers['stripe-signature'];
+exports.webhookCheckout = asyncHandler(async (req, res, next) => {
+  const sig = req.headers['stripe-signature'];
 
-//   let event;
+  let event;
 
-//   try {
-//     event = stripe.webhooks.constructEvent(
-//       req.body,
-//       sig,
-//       process.env.STRIPE_WEBHOOK_SECRET
-//     );
-//   } catch (err) {
-//     return res.status(400).send(`Webhook Error: ${err.message}`);
-//   }
-//   if (event.type === 'checkout.session.completed') {
-//     //  Create order
-//     createCardOrder(event.data.object);
-//   }
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === 'checkout.session.completed') {
+    //  Create order
+    createCardOrder(event.data.object);
+  }
 
-//   res.status(200).json({ received: true });
-// });
+  res.status(200).json({ received: true });
+});
