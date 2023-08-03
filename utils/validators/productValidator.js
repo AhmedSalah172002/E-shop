@@ -47,10 +47,8 @@ exports.createProductValidator = [
       return true;
     }),
 
-  check('colors')
-    .optional()
-    .isArray()
-    .withMessage('availableColors should be array of string'),
+  check('availableColors')
+    .optional(),
   check('imageCover').notEmpty().withMessage('Product imageCover is required'),
   check('images')
     .optional()
@@ -78,6 +76,7 @@ exports.createProductValidator = [
     .custom((subcategoriesIds) =>
       SubCategory.find({ _id: { $exists: true, $in: subcategoriesIds } }).then(
         (result) => {
+          
           if (result.length < 1 || result.length !== subcategoriesIds.length) {
             return Promise.reject(new Error(`Invalid subcategories Ids`));
           }

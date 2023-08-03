@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema(
     priceAfterDiscount: {
       type: Number,
     },
-    colors: [String],
+    availableColors: [String],
 
     imageCover: {
       type: String,
@@ -87,7 +87,11 @@ productSchema.virtual('reviews', {
 productSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'category',
-    select: 'name -_id',
+    select: 'name',
+  });
+  this.populate({
+    path: 'brand',
+    select: 'name',
   });
   next();
 });

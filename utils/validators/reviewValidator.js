@@ -3,8 +3,8 @@ const validatorMiddleware = require('../../middlewares/validatorMiddleware');
 const Review = require('../../models/reviewModel');
 
 exports.createReviewValidator = [
-  check('title').optional(),
-  check('ratings')
+  check('review').optional(),
+  check('rating')
     .notEmpty()
     .withMessage('ratings value required')
     .isFloat({ min: 1, max: 5 })

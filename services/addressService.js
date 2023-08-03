@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 
 const User = require('../models/userModel');
 
+
 // @desc    Add address to user addresses list
 // @route   POST /api/v1/addresses
 // @access  Protected/User
@@ -52,5 +53,17 @@ exports.getLoggedUserAddresses = asyncHandler(async (req, res, next) => {
     status: 'success',
     results: user.addresses.length,
     data: user.addresses,
+  });
+});
+
+
+exports.getUserAddress = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+
+  const Adress=user.addresses.filter((e)=> e._id.toString() === req.params.addressId.toString() )
+
+  res.status(200).json({
+    status: 'success',
+    data: Adress,
   });
 });
