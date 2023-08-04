@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const couponSchema = new mongoose.Schema(
   {
-    name: {
+    couponName: {
       type: String,
       trim: true,
       required: [true, 'Coupon name required'],
